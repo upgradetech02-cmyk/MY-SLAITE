@@ -860,7 +860,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
     allow_origins=_allowed_origins,
-    allow_origin_regex=r"https://.*\.preview\.emergentagent\.com",
+    allow_origin_regex=r"https://.*\.(vercel\.app|preview\.emergentagent\.com)",
     allow_methods=["*"],
     allow_headers=["*"],
 )
