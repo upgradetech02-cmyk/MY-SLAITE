@@ -1,0 +1,157 @@
+{
+  "theme_archetypes": {
+    "kids": {
+      "name": "Archetype 6: Vibrant Play",
+      "rationale": "Friendly, optimistic, and engaging. Designed to prevent intimidation for young students in underserved areas, using sky blue, sunny yellow, and rounded primary colors."
+    },
+    "adults": {
+      "name": "Archetype 4: Swiss & High-Contrast",
+      "rationale": "Authoritative, clear, and function-first. Optimized for complex data consumption by teachers, parents, and government officials. Minimal distraction."
+    }
+  },
+  "color_system": {
+    "kids_palette": {
+      "css_variables": {
+        "--background": "210 40% 98%",
+        "--foreground": "222.2 84% 4.9%",
+        "--primary": "199 89% 48%",
+        "--primary-foreground": "210 40% 98%",
+        "--secondary": "45 93% 47%",
+        "--secondary-foreground": "222.2 47.4% 11.2%",
+        "--accent": "346 87% 60%",
+        "--accent-foreground": "210 40% 98%",
+        "--muted": "210 40% 96.1%",
+        "--muted-foreground": "215.4 16.3% 46.9%",
+        "--card": "0 0% 100%",
+        "--card-foreground": "222.2 84% 4.9%",
+        "--border": "214.3 31.8% 91.4%",
+        "--radius": "1.5rem"
+      },
+      "tailwind_classes": {
+        "primary": "bg-sky-500 text-white",
+        "secondary": "bg-yellow-400 text-slate-900",
+        "accent": "bg-rose-400 text-white",
+        "background": "bg-slate-50",
+        "card": "bg-white border-2 border-sky-100"
+      }
+    },
+    "adults_palette": {
+      "css_variables": {
+        "--background": "0 0% 100%",
+        "--foreground": "222.2 84% 4.9%",
+        "--primary": "221.2 83.2% 53.3%",
+        "--primary-foreground": "210 40% 98%",
+        "--secondary": "210 40% 96.1%",
+        "--secondary-foreground": "222.2 47.4% 11.2%",
+        "--accent": "210 40% 96.1%",
+        "--accent-foreground": "222.2 47.4% 11.2%",
+        "--muted": "210 40% 96.1%",
+        "--muted-foreground": "215.4 16.3% 46.9%",
+        "--card": "0 0% 100%",
+        "--card-foreground": "222.2 84% 4.9%",
+        "--border": "214.3 31.8% 91.4%",
+        "--radius": "0.5rem"
+      },
+      "tailwind_classes": {
+        "primary": "bg-blue-600 text-white",
+        "secondary": "bg-slate-100 text-slate-900",
+        "accent": "bg-slate-50 text-slate-900",
+        "background": "bg-white",
+        "card": "bg-white border border-slate-200"
+      }
+    }
+  },
+  "typography": {
+    "kids": {
+      "fonts": {
+        "heading": "Fredoka",
+        "body": "Nunito"
+      },
+      "hierarchy": {
+        "h1": "text-4xl sm:text-5xl font-bold tracking-tight text-slate-900",
+        "h2": "text-2xl sm:text-3xl font-semibold tracking-tight text-slate-800",
+        "body": "text-lg sm:text-xl font-medium leading-relaxed text-slate-700"
+      }
+    },
+    "adults": {
+      "fonts": {
+        "heading": "Outfit",
+        "body": "IBM Plex Sans"
+      },
+      "hierarchy": {
+        "h1": "text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900",
+        "h2": "text-xl sm:text-2xl font-medium tracking-tight text-slate-800",
+        "body": "text-sm sm:text-base font-normal leading-relaxed text-slate-600",
+        "label": "text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
+      }
+    }
+  },
+  "spacing_and_layout": {
+    "kids": {
+      "grid": "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8",
+      "padding": "p-6 sm:p-8 md:p-12",
+      "card_style": "rounded-3xl shadow-sm border-4 border-slate-100/50 hover:-translate-y-2 transition-transform duration-300",
+      "alignment": "Center-aligned headers, left-aligned body text. Generous breathing room."
+    },
+    "adults": {
+      "grid": "grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6",
+      "padding": "p-4 sm:p-6",
+      "card_style": "rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition-shadow duration-200 bg-white",
+      "alignment": "Strict left-aligned grid alignment. Optical alignment for icons and text."
+    }
+  },
+  "components": {
+    "role_selection": {
+      "layout": "Split screen or central large bento grid. Visual distinction between 'I am a Student' (colorful, playful imagery) and adult roles (clean, icon-based).",
+      "interaction": "Large clickable areas with minimum min-h-16, hover scaling."
+    },
+    "kids_dashboard": {
+      "kpi_cards": "Soft flat with thick pastel borders. Use lucide-react icons at large scale (e.g., size={40}) with colorful rounded backgrounds.",
+      "progress_bar": "Thick (h-6), rounded-full, animated fill using --primary or --secondary colors.",
+      "ai_tutor_chat": "Chat bubbles with rounded-2xl. AI messages in soft blue (bg-sky-50), user messages in soft yellow (bg-yellow-50). Action buttons below chat ('Explain Again', 'Make it Easier') as pill-shaped toggles.",
+      "badges_streaks": "Use lucide-react 'Star', 'Flame', 'Award' heavily stylized with SVG filters, background glows, or wrapped in bright circular containers."
+    },
+    "adults_dashboard": {
+      "kpi_cards": "Flat, rectangular, 1px border. Value in text-3xl font-semibold, label in text-sm uppercase tracking-wide.",
+      "charts": "Use Recharts or Shadcn charts. Monochromatic blue scales for data, with semantic red/green only for negative/positive trends.",
+      "tables": "Shadcn Table component. Dense layout, text-sm, sticky headers. Striped rows for readability.",
+      "teacher_workflow": "Stepper component or vertical timeline for 'Record Today's Teaching'. Shadcn Select for class/subject choices."
+    }
+  },
+  "motion_and_interactions": {
+    "kids": {
+      "hover": "Playful scaling (scale-105) and slight rotation (rotate-1).",
+      "entrance": "Bouncy staggered fade-ins using Framer Motion spring physics.",
+      "feedback": "Confetti bursts on task completion, bouncy loading dots."
+    },
+    "adults": {
+      "hover": "Subtle background shifts (bg-slate-50 to bg-slate-100) or border color darkening.",
+      "entrance": "Quick, smooth opacity fades (duration-200 ease-in-out).",
+      "feedback": "Crisp toast notifications (Sonner) in top-right corner."
+    }
+  },
+  "media_and_images": {
+    "hero_role_selection": {
+      "description": "Engaging, authentic photography of children in a learning environment to set the context.",
+      "url": "https://images.unsplash.com/photo-1636202339022-7d67f7447e3a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHwyfHxjaGlsZHJlbiUyMGxlYXJuaW5nJTIwc2Nob29sfGVufDB8fHx8MTc4MzMzNDA5MXww&ixlib=rb-4.1.0&q=85"
+    },
+    "teacher_avatar_placeholder": {
+      "description": "Professional, approachable teacher portrait for dashboard profiling.",
+      "url": "https://images.pexels.com/photos/8423069/pexels-photo-8423069.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+    },
+    "student_avatar_placeholder": {
+      "description": "Young student actively writing/learning.",
+      "url": "https://images.unsplash.com/photo-1554721299-e0b8aa7666ce?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHwxfHxjaGlsZHJlbiUyMGxlYXJuaW5nJTIwc2Nob29sfGVufDB8fHx8MTc4MzMzNDA5MXww&ixlib=rb-4.1.0&q=85"
+    }
+  },
+  "instructions_to_main_agent": {
+    "1": "You MUST install and use 'lucide-react' for all icons. Avoid emojis.",
+    "2": "Create a unified React application with a router, but utilize layout wrappers to switch between the 'Kids Theme' (css variables, fonts, border radii) and 'Adults Theme'.",
+    "3": "Use Shadcn components for complex logic in both worlds, but highly override the Tailwind classes for the Kids dashboard to remove the 'Vercel look' (make them larger, rounder, more colorful).",
+    "4": "For all data visualizations in adult dashboards, use Recharts or Shadcn Chart components. Ensure color-blind-friendly palettes (use varied lightness, not just hue).",
+    "5": "Do NOT use any purple or teal-blue (#1B93A4) colors as instructed. Stick to the provided Sky Blue / Yellow (Kids) and Royal Blue / Slate (Adults) palettes.",
+    "6": "Add `data-testid` to EVERY interactive element (buttons, tabs, inputs, chat toggles) using kebab-case role-based naming (e.g., `data-testid='student-login-button'`).",
+    "7": "Do not use empty placeholder images. Use the Unsplash/Pexels URLs provided in the media_and_images section.",
+    "8": "Use `framer-motion` for kids' UI bouncy animations, but respect `prefers-reduced-motion`. Adult UI should rely on standard CSS transitions."
+  }
+}

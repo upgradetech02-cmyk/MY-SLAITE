@@ -1,0 +1,40 @@
+{
+  "summary": "First E2E test run for EduSense. Backend: 23/23 pytest tests pass after 1 fix. Frontend: All 6 role logins work, student dashboard/quiz/AI Tutor (real Gemini SSE streaming) /adaptive test with reasons /profile all render; teacher record-teaching workflow (Math -> Fractions -> Basic Fractions -> Mark as Taught) creates record; parent/school/company/gov dashboards render KPIs, charts and lists correctly.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/students/{id}/upcoming-assessments", "issue": "Returned 500 due to nested ObjectId inside stored assessment.questions (Motor injected _id into embedded question docs during insert_one of adaptive test). FIXED in server.py via recursive _strip_ids() helper."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Student weak-topic 'Practice' button", "issue": "Navigates to /student/tutor/{topicId} (with practice mode) rather than /student/quiz/{topicId}. Review request lists 'weak topics with practice buttons' without specifying target route — this may be by design (Tutor gives 2 practice questions). Quiz route is reachable at /student/quiz/{topicId} directly and works.", "affected_selectors": ["[data-testid^='practice-weak-']"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Confirm expected behavior of 'Practice' button on weak topics — should it open Quiz or AI Tutor? Currently opens Tutor."
+  ],
+  "critical_code_review_comments": [
+    "server.py `test.pop('_id', None)` in generate_adaptive_test is a no-op (test dict never gets _id — insert_one mutates the passed dict(test) copy). Real _id leak was in nested questions list; fix landed with _strip_ids helper for upcoming-assessments endpoint. Recommend also stripping nested _id in generate_adaptive_test response for defensive consistency.",
+    "server.py getStreak increment `if score >= 60` fires on every quiz submit — could inflate streak on same-day repeated submissions (no per-day dedupe).",
+    "server.py uses @app.on_event('shutdown') which is deprecated in FastAPI; switch to lifespan handlers.",
+    "Frontend AITutor: on mount user message 'Explain this topic to me.' appears twice initially (likely React StrictMode double-invocation of effect). Consider guarding with a ref to avoid duplicate initial stream."
+  ],
+  "updated_files": [
+    "/app/backend/server.py (added _strip_ids helper; applied to upcoming-assessments)",
+    "/app/backend/tests/backend_test.py (new pytest suite)"
+  ],
+  "success_rate": {"backend": "100% (23/23)", "frontend": "100% of tested flows"},
+  "test_credentials": "All demo users (student@demo.com etc.) with password 'demo123' as documented in /app/memory/test_credentials.md",
+  "seed_data_creation": "None — used pre-seeded demo data.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Backend suite lives at /app/backend/tests/backend_test.py, runs via `pytest backend/tests/backend_test.py`. It covers auth (6 roles), curriculum, student today/profile/upcoming, quiz get+submit, real Gemini SSE tutor stream (verifies delta+done), adaptive test generate+submit, teacher overview + teaching-records create, parent child, school/company/government overviews. AI Tutor React component causes a double initial 'Explain this topic to me.' user message due to StrictMode-like re-invoke; not blocking but visible.",
+  "rca of the issue": "upcoming-assessments 500: `generate_adaptive_test` inserts the assessment via `db.assessments.insert_one(dict(test))`. Even though the initial questions were fetched with projection {'_id': 0}, Motor's insert_one adds ObjectId `_id` fields into embedded question sub-documents (behavior of pymongo when inserting docs whose nested items pass through BSON encoding of dicts referenced by the shallow copy). On subsequent GET, the projection {'_id': 0} only strips the top-level _id. FastAPI's jsonable_encoder then fails on nested ObjectId. Mitigation: recursive _strip_ids() applied before returning."
+}

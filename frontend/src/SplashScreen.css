@@ -1,0 +1,254 @@
+.slaite-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.04), transparent 45%),
+    linear-gradient(135deg, #171b20, #252b31);
+
+  opacity: 1;
+  transition:
+    opacity 0.8s ease,
+    visibility 0.8s ease;
+}
+
+.slaite-splash--exit {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.slaite-board {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.05),
+      transparent 50%
+    ),
+    repeating-linear-gradient(
+      12deg,
+      rgba(255, 255, 255, 0.012) 0px,
+      rgba(255, 255, 255, 0.012) 1px,
+      transparent 1px,
+      transparent 5px
+    ),
+    #252a2e;
+}
+
+.slaite-board::before {
+  content: "";
+  position: absolute;
+  inset: 25px;
+
+  border: 14px solid #4b3528;
+  border-radius: 10px;
+
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 255, 255, 0.08),
+    inset 0 0 35px rgba(0, 0, 0, 0.7),
+    0 20px 60px rgba(0, 0, 0, 0.55);
+
+  pointer-events: none;
+}
+
+.slaite-logo-stage {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  transform: translateY(25px) scale(0.94);
+  opacity: 0;
+
+  animation: slaiteStageEnter 1.6s
+    cubic-bezier(0.22, 1, 0.36, 1)
+    forwards;
+}
+
+.slaite-emblem {
+  margin-bottom: 24px;
+
+  opacity: 0;
+  transform: scale(0.7) rotate(-20deg);
+
+  animation: emblemEnter 1.4s
+    cubic-bezier(0.22, 1, 0.36, 1)
+    0.4s forwards;
+}
+
+.emblem-ring {
+  width: 130px;
+  height: 130px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 4px solid rgba(255, 255, 255, 0.88);
+  border-radius: 50%;
+
+  box-shadow:
+    0 0 30px rgba(255, 255, 255, 0.08),
+    inset 0 0 25px rgba(255, 255, 255, 0.04);
+}
+
+.emblem-s {
+  font-size: 72px;
+  font-weight: 900;
+  line-height: 1;
+
+  color: rgba(255, 255, 255, 0.94);
+
+  font-family:
+    "Arial Rounded MT Bold",
+    "Trebuchet MS",
+    sans-serif;
+}
+
+.slaite-brand {
+  display: flex;
+  align-items: baseline;
+
+  font-size: clamp(60px, 9vw, 135px);
+  font-weight: 900;
+
+  letter-spacing: -5px;
+
+  opacity: 0;
+  transform: translateY(20px);
+
+  animation: brandEnter 1.4s
+    cubic-bezier(0.22, 1, 0.36, 1)
+    1s forwards;
+}
+
+.brand-sl,
+.brand-te {
+  color: #f4f4ef;
+
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 18px rgba(255, 255, 255, 0.08);
+}
+
+.brand-ai {
+  margin: 0 4px;
+
+  color: #22a7e0;
+
+  font-family:
+    Inter,
+    Arial,
+    sans-serif;
+
+  font-weight: 800;
+
+  text-shadow:
+    0 0 20px rgba(34, 167, 224, 0.3);
+}
+
+.slaite-tagline {
+  margin-top: 14px;
+
+  color: rgba(255, 255, 255, 0.62);
+
+  font-family:
+    Inter,
+    Arial,
+    sans-serif;
+
+  font-size: clamp(11px, 1.3vw, 17px);
+  font-weight: 600;
+
+  letter-spacing: 6px;
+
+  opacity: 0;
+  transform: translateY(10px);
+
+  animation: taglineEnter 1.2s ease 1.8s forwards;
+}
+
+@keyframes slaiteStageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(25px) scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes emblemEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.7) rotate(-20deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes brandEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes taglineEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 600px) {
+  .slaite-board::before {
+    inset: 12px;
+    border-width: 9px;
+  }
+
+  .emblem-ring {
+    width: 95px;
+    height: 95px;
+  }
+
+  .emblem-s {
+    font-size: 52px;
+  }
+
+  .slaite-brand {
+    letter-spacing: -3px;
+  }
+
+  .slaite-tagline {
+    letter-spacing: 3px;
+  }
+}

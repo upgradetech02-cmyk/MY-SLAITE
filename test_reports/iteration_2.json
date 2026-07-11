@@ -1,0 +1,52 @@
+{
+  "summary": "Iteration 2 focused on P0 auth (JWT+bcrypt, cookies, register/reset/lockout, Google session) and i18n (English/Hindi toggle) + Hindi AI Tutor streaming. Backend: 20/21 auth+i18n tests pass (1 xfailed for lockout — confirmed backend bug). All 23 regression tests still pass. Frontend: Login (6 roles), Signup->parent redirect, Sign-out, Forgot->Reset flow, Google login URL, and Hindi AI Tutor streaming (Devanagari verified) all work. All 6 role dashboards render without errors. Key gap: i18n is NOT wired into dashboard pages — only Login/Signup/Forgot/Reset/AITutor use useTranslation.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "POST /api/auth/login (lockout)", "issue": "Brute-force lockout NEVER triggers behind K8s ingress: request.client.host returns 2 rotating ingress-pod IPs (10.79.138.194 / .198), so per-(ip+email) counter tops out at ~2-3 per IP and never hits 5. Verified via MongoDB login_attempts docs. Must use X-Forwarded-For (leftmost) or normalize identifier by email only.", "priority": "HIGH"}
+    ],
+    "minor": [
+      {"endpoint": "POST /api/auth/logout", "issue": "Endpoint always returns 200 even without any cookies present — acceptable but consider requiring auth for consistency."},
+      {"endpoint": "POST /api/auth/register", "issue": "No password strength enforcement beyond min_length=6. Consider forbidding trivial passwords like '123456'."},
+      {"endpoint": "auth.py _set_auth_cookies", "issue": "SameSite='none' + Secure=True is required for cross-site cookies to survive Emergent OAuth redirect, but blocks localhost dev. Not a bug in this env — just an FYI."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Login role card", "issue": "Clicking a role card before /api/auth/demo-accounts fetch resolves does NOT populate the email input, leaving the Continue button disabled (user must click role card again OR type email manually).", "selector": "[data-testid^='role-card-']", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [
+      {"flow": "Language toggle -> Dashboard content", "issue": "Only header/logout/language-toggle labels translate. Every dashboard page body (StudentDashboard, TeacherDashboard, ParentDashboard, SchoolAdminDashboard, CompanyAdminDashboard, GovernmentDashboard, Quiz, AdaptiveTest, Profile) still shows English hard-coded strings when Hindi is selected. Requirement 'student dashboard headings translate to Hindi' FAILS: only header shows 23 Devanagari chars while body stays English (Hi Aarav!, What I studied today, Continue Learning, Revise, Ask AI Tutor, My progress, Topics I need to practice, Practice, etc.).", "affected_selectors": ["/student", "/teacher", "/parent", "/school", "/company", "/government", "/student/quiz/*", "/student/adaptive-test", "/student/profile"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/backend/tests/test_auth_i18n.py",
+    "/app/test_reports/pytest/pytest_results.xml",
+    "/app/test_reports/pytest/auth_i18n_results.xml"
+  ],
+  "action_items": [
+    "HIGH: Fix brute-force lockout to work behind K8s ingress. Use request.headers.get('x-forwarded-for','').split(',')[0].strip() as client IP, or use email-only identifier (with slightly weaker but functional lockout).",
+    "HIGH: Wire useTranslation() into all dashboard pages (StudentDashboard, TeacherDashboard, ParentDashboard, SchoolAdminDashboard, CompanyAdminDashboard, GovernmentDashboard, Quiz, AdaptiveTest, Profile) so Hindi toggle actually translates body content. i18n resources (t('student.*'), t('teacher.*'), etc.) already exist in i18n.js — just replace hard-coded strings.",
+    "MEDIUM: Auto-populate email on Login role-card click AFTER demoAccounts finishes loading, OR disable role cards until data arrives, OR pre-fetch demo accounts on app boot."
+  ],
+  "critical_code_review_comments": [
+    "auth.py _record_login_failure identifier uses request.client.host which behind K8s ingress is the pod IP of the reverse proxy (rotates every request across replicas). This makes the lockout mechanism worthless in production. Standard mitigation: use X-Forwarded-For header (already trusted since Emergent ingress sets it) or drop IP and use email-only.",
+    "auth.py forgot_password inserts password_reset_tokens with expires_at as a datetime, but reset_password treats it as possibly-string. Consistent typing recommended (always store ISO string OR always datetime).",
+    "auth.py google_session uses `requests.get` synchronously inside async endpoint — blocks event loop. Prefer httpx.AsyncClient.",
+    "server.py CORSMiddleware is added AFTER app.include_router(api). Starlette applies outermost middlewares first; adding middleware post-include may still work but the idiomatic order is to add CORS before including routers.",
+    "i18n.js has full en+hi resources for student/teacher/parent/etc., but the dashboard components never import useTranslation — dead translation data. Also, LanguageToggle only re-renders subscribed components; components not using t() won't update.",
+    "Login.jsx pickAccount closure races with demoAccounts fetch: fast clickers get disabled submit button. Consider `useEffect` to auto-set email when role changes and demoAccounts arrives.",
+    "AuthCallback.jsx (not viewed but referenced) — ensure POST /api/auth/google-session handles the case where session_token cookie is set server-side; browser should NOT set it directly."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_auth_i18n.py (new — 21 auth+i18n tests)"
+  ],
+  "success_rate": {"backend": "95% (20/21 auth+i18n; 23/23 regression) — 1 xfail for known lockout bug", "frontend": "auth/i18n toggle/tutor/dashboards load OK; i18n on dashboard body missing"},
+  "test_credentials": "All demo users password 'demo123' per /app/memory/test_credentials.md — verified working.",
+  "seed_data_creation": "Registered several TEST_* prefixed parent/teacher accounts and one reset-token flow. Restored student@demo.com password back to 'demo123' via API after reset test.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Two suites: /app/backend/tests/backend_test.py (23 regression) + /app/backend/tests/test_auth_i18n.py (21 new). Run: `pytest backend/tests/ -v`. Auth cookies work via `requests.Session` (cookies persisted). AI Tutor Hindi stream tested — first delta reliably contains Devanagari. Two known gaps: (1) lockout ineffective — see RCA. (2) i18n only on auth pages; dashboards not translated.",
+  "rca of the issue": "Lockout bug — auth.py:194 uses `request.client.host` which in this Kubernetes cluster is one of 2 alternating ingress-pod IPs (10.79.138.194 / 10.79.138.198). MongoDB login_attempts confirms 2 separate identifier docs per email, each hovering at count=2-4, never reaching 5. Fix: `ip = request.headers.get('x-forwarded-for','').split(',')[0].strip() or request.client.host`. Alternatively use email-only identifier (`identifier = email`) which is simpler and more consistent for a per-account lockout. i18n bug — i18n.js has all Hindi strings but no dashboard imports useTranslation(). Fix: add `const { t } = useTranslation();` and replace strings with t('student.hi_name', {name}) etc. across all *Dashboard.jsx and student/*.jsx pages."
+}

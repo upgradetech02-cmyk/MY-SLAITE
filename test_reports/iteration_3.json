@@ -1,0 +1,42 @@
+{
+  "summary": "Iteration 3: Retested (1) brute-force lockout fix using X-Forwarded-For and (2) i18n wiring on all 6 role dashboards + student sub-pages (Quiz, AdaptiveTest, Profile). BOTH FIXES VERIFIED. Backend: 44/44 tests pass (23 regression + 21 auth/i18n incl. strict lockout assertion — no more xfail). Frontend: All Hindi target phrases render on Student, Teacher, Parent, School Admin, Company Admin, Government dashboards, Student Quiz, Adaptive Test (after generate), and Student Profile. Zero console errors on the tour. AI Tutor Hindi streaming still works.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/auth/logout", "issue": "Endpoint always returns 200 even without cookies — pre-existing, non-blocking."},
+      {"endpoint": "POST /api/auth/register", "issue": "No password strength enforcement beyond min_length=6 — pre-existing."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "LanguageToggle", "issue": "After successful login the top-right success toast (Welcome, <name>) overlaps the language-toggle button coords for ~4-5s and intercepts pointer events, so an immediate click after login is silently swallowed. Discovered while automating; humans hitting the toggle within ~5s of login would see no effect. Recommend either z-index tweak on toggle wrapper OR toast positioned lower (e.g., bottom-right).", "selector": "[data-testid='language-toggle']", "priority": "MEDIUM"},
+      {"component": "Login role card", "issue": "Pre-existing (iteration 2): clicking role card before /api/auth/demo-accounts resolves leaves email empty and submit disabled.", "selector": "[data-testid^='role-card-']", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/backend/tests/test_auth_i18n.py",
+    "/app/test_reports/pytest/iteration3_results.xml"
+  ],
+  "action_items": [
+    "MEDIUM: Fix welcome toast z-index / position so it does not overlap the language-toggle button in the header. Currently the toast (fixed top-right) intercepts clicks on the toggle for ~4s post-login. Move toast to bottom-right or add pointer-events-none / lower z-index to toast root.",
+    "MEDIUM (carry-over): auto-populate email on Login role-card click after demoAccounts resolves."
+  ],
+  "critical_code_review_comments": [
+    "auth.py:192-193 correctly reads X-Forwarded-For leftmost — fix verified. Consider also stripping ipv6 zone/port if present.",
+    "LanguageToggle click flow works via i18n.changeLanguage; UX-blocked by welcome toast overlay in first ~5s after login. Consider setting toast container's pointer-events: none while keeping child buttons interactive, or shift toast placement.",
+    "AdaptiveTest.jsx why_questions and submit_test are inside the post-generate branch — visible only after the test payload arrives. Correct behavior; no change needed."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_auth_i18n.py (strict lockout assertion + XFF header; removed xfail)"
+  ],
+  "success_rate": {"backend": "100% (44/44)", "frontend": "100% i18n phrases matched on all 6 dashboards + student quiz + adaptive + profile"},
+  "test_credentials": "All demo users password 'demo123' per /app/memory/test_credentials.md — verified working.",
+  "seed_data_creation": "Registered a handful of TEST_lockout_* / TEST_reg_* / TEST_pw_* parent accounts during pytest runs. No cleanup needed for MVP.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Both P0 fixes from iteration 2 confirmed. To reproduce the Hindi UI check, set localStorage.edusense_lang='hi' BEFORE logging in (or wait 5s+ before clicking the header language-toggle to let the welcome toast dismiss). Test files: /app/backend/tests/backend_test.py (23) + /app/backend/tests/test_auth_i18n.py (21). Command: `cd /app && python -m pytest backend/tests/ -v`.",
+  "rca_of_the_issue": "Lockout fix: auth.py now derives ip from request.headers.get('x-forwarded-for','').split(',')[0].strip() which is stable across K8s ingress pods. Verified: 5 wrong logins against TEST user (with fixed X-Forwarded-For=203.0.113.42) triggers 429, and a subsequent correct-password attempt within the window is also 429 — lockout applies to identifier as expected. i18n fix: all target dashboards + sub-pages now import useTranslation() and use t('...'). Verified by pre-setting localStorage.edusense_lang='hi' and asserting exact Hindi phrases (मैंने आज क्या पढ़ा, आज का पढ़ाना दर्ज करें, मासिक प्रगति, पाठ्यक्रम प्रगति, प्लेटफ़ॉर्म अवलोकन, ज़िला शिक्षा विश्लेषण, प्रश्न, व्यक्तिगत परीक्षा/ये प्रश्न क्यों?/परीक्षा जमा करें, मेरा लर्निंग प्रोफ़ाइल) all render."
+}

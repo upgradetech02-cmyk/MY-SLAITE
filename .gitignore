@@ -1,0 +1,36 @@
+# Environment files
+.env
+backend/.env
+frontend/.env
+.env.local
+.env.production
+
+# Python
+backend/venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Node
+frontend/node_modules/
+node_modules/
+
+# Build
+frontend/build/
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.cache/
+.emergent/
+.local/
+.pythonlibs/
+frontend/node_modules/
+frontend/build/
+backend/__pycache__/
+*.tar.gz
+*.gz
+.env
